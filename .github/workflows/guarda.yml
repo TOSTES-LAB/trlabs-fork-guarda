@@ -1,0 +1,28 @@
+name: guarda
+
+# A cada 15 minutos avalia os PRs abertos no fork e publica o status
+# "trlabs/guarda". Mora fora do fork de propósito: dentro dele, qualquer PR
+# poderia reescrever a própria guarda, e workflows novos lá dentro exigiriam
+# editar testes do projeto oficial.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: guarda
+  cancel-in-progress: false
+
+jobs:
+  avaliar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Avaliar os PRs abertos do fork
+        env:
+          GH_TOKEN: ${{ secrets.FORK_TOKEN }}
+        run: bash guarda.sh

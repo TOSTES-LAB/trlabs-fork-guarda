@@ -1,0 +1,4 @@
+# Arquivos NOSSOS dentro da área protegida (testes, CI, configuração de teste).
+# Um caminho por linha. Só entra aqui arquivo que NÃO existe na versão oficial:
+# a guarda reprova se alguém listar um arquivo do upstream.
+# Mudança nesta lista é decisão do dono, feita por PR neste repositório.

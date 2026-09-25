@@ -1,0 +1,30 @@
+name: sincronizar
+
+# Uma vez por dia (06:23 em São Paulo) procura versão oficial nova do
+# DeskcommCRM e abre o PR de sincronização no fork, ou uma issue aqui se houver
+# conflito.
+on:
+  schedule:
+    - cron: "23 9 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: sincronizar
+  cancel-in-progress: false
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Trazer a última versão oficial para o fork
+        env:
+          GH_TOKEN: ${{ secrets.FORK_TOKEN }}
+          TOKEN_DO_REPO: ${{ github.token }}
+          GUARDA_REPO: ${{ github.repository }}
+        run: bash sincronizar.sh
