@@ -1,0 +1,12 @@
+name: diagnostico
+on: workflow_dispatch
+permissions: {}
+jobs:
+  tamanho:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          T: ${{ secrets.FORK_TOKEN }}
+        run: |
+          echo "tamanho=${#T}"
+          case "$T" in github_pat_*) echo "prefixo=github_pat_" ;; "") echo "prefixo=vazio" ;; *) echo "prefixo=outro" ;; esac
