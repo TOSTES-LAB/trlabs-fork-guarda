@@ -37,6 +37,25 @@ if git ls-remote --exit-code --heads origin "$ramo" >/dev/null; then
   exit 0
 fi
 
+# O CI oficial (scripts/conferir-isolamento-do-kit.sh, desde a v1.63.x) busca no
+# fork a última release publicada e as tags dela e da v1.63.0. Sem elas o job
+# invariants reprova com "não consegui saber qual é a última release publicada".
+# A tag não é criada aqui: tag fora da main reprova o "a-tag-veio-da-main" e
+# publicar versão é do dono. O PR só diz o comando e avisa o que falta.
+aviso=""
+if ! gh release view -R "$FORK" --json tagName >/dev/null 2>&1; then
+  aviso="${aviso}
+- O fork não tem release publicada: o \`invariants\` reprova até o dono publicar a versão que está na main."
+fi
+if ! git ls-remote --exit-code --tags origin "refs/tags/v1.63.0" >/dev/null; then
+  aviso="${aviso}
+- Falta a tag \`v1.63.0\` no fork, que a conferência do kit sempre busca."
+fi
+[ -n "$aviso" ] && aviso="
+**Atenção**${aviso}
+"
+sha=$(git rev-parse "${tag}^{commit}")
+
 git checkout -q -b "$ramo" origin/main
 if git merge -q --no-ff --no-edit -m "sync: incorporar ${tag} do upstream" "$tag"; then
   git push -q origin "$ramo"
@@ -44,7 +63,14 @@ if git merge -q --no-ff --no-edit -m "sync: incorporar ${tag} do upstream" "$tag
 Incorpora a versão oficial [${tag}](https://github.com/${UPSTREAM}/releases/tag/${tag}) sem conflito.
 
 Para entrar na main este PR precisa dos cinco testes do projeto verdes e do status \`trlabs/guarda\`.
-O merge é do dono. Publicar a versão (criar a tag) também.
+O merge é do dono. Publicar a versão (criar a tag) também. Depois do merge, publique com:
+
+\`\`\`
+gh release create ${tag} -R ${FORK} --target ${sha} --title ${tag} --notes "Espelho da release oficial ${tag}."
+\`\`\`
+
+Essa release é a "última release publicada" que a conferência do kit usa no próximo PR de sincronização.
+${aviso}
 Regras: https://github.com/${GUARDA_REPO}/blob/main/REGRAS-PARA-AGENTES.md
 EOF
 )"
