@@ -26,7 +26,7 @@ cd "${trabalho}/r"
 git config user.name "TOSTES-LAB"
 git config user.email "TOSTES-LAB@users.noreply.github.com"
 git remote add upstream "https://github.com/${UPSTREAM}.git"
-git fetch -q --filter=blob:none upstream "refs/tags/${tag}:refs/tags/${tag}"
+git fetch -q --filter=blob:none upstream "+refs/tags/${tag}:refs/tags/${tag}"
 
 if git merge-base --is-ancestor "$tag" origin/main; then
   echo "O fork já contém ${tag}. Nada a fazer."

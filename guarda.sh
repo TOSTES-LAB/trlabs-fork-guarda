@@ -21,7 +21,7 @@ trabalho="$(mktemp -d)"
 git clone -q --filter=blob:none --no-checkout "https://github.com/${FORK}.git" "${trabalho}/r"
 cd "${trabalho}/r"
 git remote add upstream "https://github.com/${UPSTREAM}.git"
-git fetch -q --filter=blob:none upstream 'refs/tags/v*:refs/tags/v*'
+git fetch -q --filter=blob:none upstream '+refs/tags/v*:refs/tags/v*'
 
 publicar() {
   gh api -X POST "repos/${FORK}/statuses/${1}" \
